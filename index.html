@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CriticMaster</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" onclick="showView('home')">CriticMaster</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" onclick="showView('home')">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showView('profile')">Perfil</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showView('createReview')">Crear reseña</a></li>
+                <li class="nav-item ms-2" id="authButton">
+                    <button class="btn btn-register" onclick="openAuthModal()">Registrar</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="modal-overlay" id="authModal">
+    <div class="modal-content-custom">
+        <button class="close-btn" onclick="closeAuthModal()">&times;</button>
+        <h3 class="text-center mb-4">CriticMaster</h3>
+        <div class="d-flex justify-content-center mb-3">
+            <button class="tab-btn active" id="tabRegister" onclick="switchAuthTab('register')">Registrar</button>
+            <button class="tab-btn" id="tabLogin" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+        </div>
+        <form id="registerForm" onsubmit="handleRegister(event)">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Correo</label>
+                <input type="email" class="form-control" id="regEmail" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Nombre de usuario</label>
+                <input type="text" class="form-control" id="regUsername" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Contraseña</label>
+                <input type="password" class="form-control" id="regPassword" required minlength="6">
+                <small class="text-muted">Mínimo 6 caracteres</small>
+            </div>
+            <button type="submit" class="btn btn-secondary w-100">Registrar</button>
+        </form>
+        <form id="loginForm" class="hidden" onsubmit="handleLogin(event)">
+            <p class="text-center text-muted mb-3">¡Bienvenido de vuelta!</p>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Correo</label>
+                <input type="email" class="form-control" id="loginEmail" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Contraseña</label>
+                <input type="password" class="form-control" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn btn-secondary w-100">Iniciar Sesión</button>
+            <p class="text-center mt-2"><a href="#" class="text-decoration-none text-muted small">¿Olvidaste la contraseña?</a></p>
+        </form>
+    </div>
+</div>
+
+
+<div id="mainContent">
+
+
+    <div id="homeView" class="view-section">
+        <div class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                       <!--
+                        <h1 class="display-4 fw-bold text-white mb-3">Descubre y reseña</h1>
+                        <p class="lead text-white">Los mejores juegos, películas y series. Comparte tu opinión.</p>
+                    -->
+                    </div>
+                    <!--
+                    <div class="col-md-6 text-center">
+                        <i class="bi bi-controller hero-icon"></i>
+                    </div>
+                -->
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <h2 class="section-title">Novedades</h2>
+            <div class="row" id="novedadesContainer"></div>
+            <h2 class="section-title mt-5">Juegos</h2>
+            <div class="row" id="juegosContainer"></div>
+        </div>
+    </div>
+
+    <div id="profileView" class="view-section hidden">
+        <div class="profile-header">
+            <div class="container">
+                <div class="row align-items-end">
+                    <div class="col-md-2 text-center">
+                        <div class="profile-avatar mx-auto">
+                            <i class="bi bi-person"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-10 text-white">
+                        <h2 class="fw-bold mb-1" id="profileName">Usuario</h2>
+                        <p class="mb-2 opacity-75">Descripción del usuario</p>
+                        <div class="d-flex gap-4">
+                            <span><strong id="reviewCount">0</strong> Reseñas</span>
+                            <span><strong>0</strong> Seguidores</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-4">
+            <div class="d-flex gap-3 mb-4 border-bottom">
+                <button class="tab-btn active">Mis Reseñas</button>
+                <button class="tab-btn">Datos personales</button>
+            </div>
+            <div id="userReviewsList"></div>
+        </div>
+    </div>
+
+    <div id="createReviewView" class="view-section hidden">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="review-form-card">
+                        <h2 class="mb-4 fw-bold">Crear Reseña</h2>
+                        <form id="reviewForm" onsubmit="handleCreateReview(event)">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Título de la reseña</label>
+                                <input type="text" class="form-control" id="reviewTitle" required placeholder="Ej: Pokémon Espada">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Descripción</label>
+                                <textarea class="form-control" id="reviewDesc" rows="5" required placeholder="Escribe tu reseña aquí..."></textarea>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold d-block">Calificación</label>
+                                <div class="star-rating" id="starRating">
+                                    <i class="bi bi-star" data-value="1" onclick="setRating(1)"></i>
+                                    <i class="bi bi-star" data-value="2" onclick="setRating(2)"></i>
+                                    <i class="bi bi-star" data-value="3" onclick="setRating(3)"></i>
+                                    <i class="bi bi-star" data-value="4" onclick="setRating(4)"></i>
+                                    <i class="bi bi-star" data-value="5" onclick="setRating(5)"></i>
+                                </div>
+                                <input type="hidden" id="reviewRating" value="0">
+                                <small class="text-danger hidden" id="ratingError">Selecciona una calificación</small>
+                            </div>
+                            <button type="submit" class="btn btn-dark w-100 py-2">Publicar reseña</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameDetailView" class="view-section hidden">
+        <div class="hero-section">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <div class="bg-white rounded-3 p-0">
+                            <div class="placeholder-img rounded-2 "id="detailGameImg">
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-7 text-white">
+                        <h1 class="fw-bold" id="detailGameTitle">Título</h1>
+                        <p class="mb-2" id="detailGamePlatform">Plataforma</p>
+                        <div class="d-flex gap-3 mb-3">
+                            <div>
+                                <small>CriticScore</small>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="score-badge score-green" id="detailCriticScore">80</div>
+                                    <div>
+                                        <div>Mayormente buenas</div>
+                                        <small class="opacity-75">Basado en 87 reseñas</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <div>
+                                <small>UserScore</small>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="score-badge score-red" id="detailUserScore">4.8</div>
+                                    <div>
+                                        <div>Mayormente malas</div>
+                                        <small class="opacity-75">Basado en 6,568 reseñas</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-4">
+            <h3 class="section-title">Últimas reseñas</h3>
+            <div id="detailReviewsList"></div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content-custom">
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+        <h4 class="mb-3 fw-bold">Editar Reseña</h4>
+        <form id="editForm" onsubmit="handleEditReview(event)">
+            <input type="hidden" id="editReviewId">
+            <div class="mb-3">
+                <label class="form-label fw-bold">Título</label>
+                <input type="text" class="form-control" id="editTitle" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Descripción</label>
+                <textarea class="form-control" id="editDesc" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold d-block">Calificación</label>
+                <div class="star-rating" id="editStarRating">
+                    <i class="bi bi-star" data-value="1" onclick="setEditRating(1)"></i>
+                    <i class="bi bi-star" data-value="2" onclick="setEditRating(2)"></i>
+                    <i class="bi bi-star" data-value="3" onclick="setEditRating(3)"></i>
+                    <i class="bi bi-star" data-value="4" onclick="setEditRating(4)"></i>
+                    <i class="bi bi-star" data-value="5" onclick="setEditRating(5)"></i>
+                </div>
+                <input type="hidden" id="editRating" value="0">
+            </div>
+            <button type="submit" class="btn btn-dark w-100">Guardar cambios</button>
+        </form>
+    </div>
+</div>
+
+<footer class="footer-custom mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h4 class="fw-bold text-dark mb-3">CriticMaster</h4>
+                <p class="text-white-50">Tu plataforma de confianza para descubrir y compartir reseñas de juegos, películas y series.</p>
+                <div class="mt-3">
+                    <i class="bi bi-facebook fs-4 text-dark me-3"></i>
+                    <i class="bi bi-twitter fs-4 text-dark me-3"></i>
+                    <i class="bi bi-instagram fs-4 text-dark me-3"></i>
+                    <i class="bi bi-youtube fs-4 text-dark"></i>
+                </div>
+            </div>
+            <div class="col-md-2 offset-md-1 mb-4">
+                <h5 class="fw-bold text- mb-3">Explorar</h5>
+                <ul class="list-unstyled">
+                    <li><a onclick="showView('home')" class="text-white-50 text-decoration-none">Inicio</a></li>
+                    <li><a onclick="showView('profile')" class="text-white-50 text-decoration-none">Perfil</a></li>
+                    <li><a onclick="showView('createReview')" class="text-white-50 text-decoration-none">Crear reseña</a></li>
+                </ul>
+            </div>
+            <div class="col-md-2 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Categorías</h5>
+                <ul class="list-unstyled">
+                    <li><a class="text-white-50 text-decoration-none">Juegos</a></li>
+                    <li><a class="text-white-50 text-decoration-none">Películas</a></li>
+                    <li><a class="text-white-50 text-decoration-none">Series</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h5 class="fw-bold text-dark mb-3">Contacto</h5>
+                <ul class="list-unstyled">
+                    <li class="text-white-50"><i class="bi bi-envelope me-2"></i> contacto@criticmaster.com</li>
+                    <li class="text-white-50"><i class="bi bi-telephone me-2"></i> +52 993 123 4567</li>
+                    <li class="text-white-50"><i class="bi bi-geo-alt me-2"></i> Villahermosa, Tabasco, MX</li>
+                </ul>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="text-center">
+            <p class="text-white-50 mb-0">&copy; 2026 CriticMaster. Todos los derechos reservados.</p>
+            <p class="text-white-50 small mt-1">Tecnológico Nacional de México - Campus Villahermosa</p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
